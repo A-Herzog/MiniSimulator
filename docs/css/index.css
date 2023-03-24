@@ -1,0 +1,35 @@
+a {
+  color: #0050FF;
+}
+
+h1 {
+  margin-top: 20px;
+  font-weight: bold;
+}
+
+h2 {
+  margin-top: 20px;
+  font-weight: bold;
+}
+
+.card {
+  margin-top: 10px;
+}
+
+input:invalid {
+  border: red solid 3px;
+  color: red;
+}
+
+.popover-header {
+  background-color: red;
+  color: white;
+}
+
+.popover-body {
+  background-color: #EFEFEF;
+}
+
+.progress-bar {
+  transition: none !important;
+}
