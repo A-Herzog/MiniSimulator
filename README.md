@@ -8,7 +8,7 @@ To use simulator just go to
 
 **[a-herzog.github.io/MiniSimulator](https://a-herzog.github.io/MiniSimulator/)**
 
-![Website status](https://img.shields.io/website?url=https%3A%2F%2Fa-herzog.github.io%2FMiniSimulator%2F)
+![Website status](https://img.shields.io/website?url=https%3A%2F%2Fa-herzog.github.io%MiniSimulator%2F)
 
 ## License
 

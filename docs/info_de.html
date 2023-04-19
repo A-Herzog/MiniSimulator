@@ -46,7 +46,7 @@
 <nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top" id="navbar_main">
   <div class="container-fluid">
     <span class="navbar-brand mb-0 h1">
-      <span style="background-color: white; padding: 1px 10px 5px 10px; border-radius: 2px;"><img src="./favicon.ico" width="24" alt=""></span>
+      <span style="background-color: white; padding: 1px 10px 5px 10px; border-radius: 2px;"><img src="data:image/webp;base64,UklGRoQDAABXRUJQVlA4WAoAAAAYAAAAIwAAIwAAVlA4TIgCAAAvI8AIENVIoq3t2Bbbtm3bNrNt27Zt27Zt27Y1d709bxpfw2y7D8N/rSe7oMYCgFB53xUYwV3moLpD5Yju0Eju0v6R3BIjMADZrRHdA261bc+SikNnfjsXoKP9rd4RTN8ELgAb/BMwgRNkneCrsKX6lyD/nfmaAFwjLqlexp0qN9226x6wt7JsqXdL/1bVqXf2jmWdjq6h9Ez6RYP+1/OccjSgNvNsJfkuXZMiC0S/aD0pMdPyAWwoyvyrjC8ZXSGve0/ol8A/mwsRZwHgRDx7tMuakXkb+cQjYp+eptlRayzA8orySeYMkW/u57sGvQmWD+fc3xD/kGrPR7Ddp2nJ/Vx9eATWN+e+5l2vbXoSV8sDso9sIJvICfKEZGe3aQMPWfDAHgf8yEUXD4c0LIx1kdqnHKH0YAFzaM5/ZWrpJzgF0EG6ooM+VAYJKNVGFHUoVUQMXagWnjRxmZ77/c1x3rYWZuSnpzFQQ9qQzV0FhROtV9RxOGW0d19xOCX0tnQ0q6Bk0drhTxDzzU4anu+4mOjDkiyWOzVIfisggPSWkirQQNozG6CBpRtrFcTL64JMMX+BCx50MNn6SXGFzK98gHFqmrFekFkKs34kUU6QiJZ2VDdiFuTyTUpBxBETwUxfBkPksx6TvTNrpibwnciv2jArTFWmCzLqrFWZrLE0Z2S4O+WIiB2cAMt+mgv1NnXw6acb5BzJbwWsBSypuD9B35QK24mgCKXS/kQR01MhOxNW8CqL/nBkeb5NoaWrz7fbVGCLcXe1pnrxfdUpjqZZ+PCzNS20aWQKOVStxdtUrDUH8ZNimNJTnx2OJd/4+emmW66cNCQHHHPaTDgIGaEhfEQnccQRrr5FWElG1gAAAElJKgAIAAAABgASAQMAAQAAAAEAAAAaAQUAAQAAAFYAAAAbAQUAAQAAAF4AAAAoAQMAAQAAAAIAAAAxAQIAEAAAAGYAAABphwQAAQAAAHYAAAAAAAAAYAAAAAEAAABgAAAAAQAAAHBhaW50Lm5ldCA1LjAuMgAFAACQBwAEAAAAMDIzMAGgAwABAAAAAQAAAAKgBAABAAAAJAAAAAOgBAABAAAAJAAAAAWgBAABAAAAuAAAAAAAAAACAAEAAgAEAAAAUjk4AAIABwAEAAAAMDEwMAAAAAA=" width="24" height="24" alt="Logo"></span>
       <script>document.write(language.GUI.Name);</script>
     </span>
     <button type="button" class="btn btn-outline-light bi-x-circle" onclick="if (isDesktopApp) Neutralino.window.hide(); else window.close();"> <script>document.write(language.GUI.closePage);</script></button>
@@ -56,6 +56,17 @@
 <div class="container mt-4" id="content"></div>
 
 <script>
+function rewriteLinksInOfflineMode() {
+  if (!isDesktopApp) return;
+  for (let link of document.querySelectorAll("a")) if (link.href.startsWith('https://')) {
+    const href=link.href;
+    link.onclick=()=>Neutralino.os.open(href);
+    link.removeAttribute("href");
+    link.style.cursor="pointer";
+    if (!link.classList.contains("dropdown-item") && !link.classList.contains("btn")) link.classList.add("link-primary");
+  }
+}
+
 const pages={
   "qt": "info_qt",
   "glossary" : "info_glossary"
@@ -64,7 +75,10 @@ const pages={
 const id=window.location.search;
 if (id.startsWith('?')) {
   const page=pages[id.substring(1)];
-  if (typeof(page)!='undefined') fetch('./js/'+page+'_'+language.GUI.imageMode+'.html').then(response=>response.text().then(text=>content.innerHTML=text));
+  if (typeof(page)!='undefined') fetch('./js/'+page+'_'+language.GUI.imageMode+'.html').then(response=>response.text().then(text=>{
+    content.innerHTML=text;
+    rewriteLinksInOfflineMode();
+  }));
 }
 </script>
 

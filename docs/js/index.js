@@ -36,6 +36,19 @@ function selectLanguage(languages) {
   }
 }
 
+/* Umschreiben der Links für den Offline-Modus */
+
+function rewriteLinksInOfflineMode() {
+  if (!isDesktopApp) return;
+  for (let link of document.querySelectorAll("a")) if (link.href.startsWith('https://')) {
+    const href=link.href;
+    link.onclick=()=>Neutralino.os.open(href);
+    link.removeAttribute("href");
+    link.style.cursor="pointer";
+    if (!link.classList.contains("dropdown-item") && !link.classList.contains("btn")) link.classList.add("link-primary");
+  }
+}
+
 /* Simulationssystem */
 
 let worker=[];

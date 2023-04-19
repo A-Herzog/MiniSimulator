@@ -1,6 +1,6 @@
-# How to build a desktop app of # G/G/c/K+G simulator
+# How to build a desktop app of G/G/c/K+G simulator
 
-# G/G/c/K+G simulator can be used as a web service.
+G/G/c/K+G simulator can be used as a web service.
 To use the calculator just go to
 
 **[a-herzog.github.io/MiniSimulator](https://a-herzog.github.io/MiniSimulator/)**
