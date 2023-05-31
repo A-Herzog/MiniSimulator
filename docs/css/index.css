@@ -33,3 +33,12 @@ input:invalid {
 .progress-bar {
   transition: none !important;
 }
+
+.nav-link {
+  color: white;
+}
+
+.active {
+  background-color: #14E !important;
+  border-radius: 4px !important;
+}

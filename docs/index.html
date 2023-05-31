@@ -19,14 +19,13 @@
   limitations under the License.
   -->
   <title>G/G/c/K+G Simulator</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="Simulator for a G/G/c/K+G queueing model">
   <meta name="keywords" content="Simulation, Warteschlangentheorie, Queueing theory">
   <!-- Begin of language independent part -->
   <meta name="author" content="Alexander Herzog">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
   <meta http-equiv="Content-Security-Policy" content="base-uri 'none'; default-src 'none'; connect-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:;">
   <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
   <link href="./libs/bootstrap.min.css" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" rel="stylesheet">
@@ -70,7 +69,7 @@
 
 <body data-bs-spy="scroll" data-bs-target="#navbar_main" data-bs-offset="150" onload="initPage()">
 <div id="infoLoading">Loading...</div>
-<span id="mainContent" style="display: none;">
+<div id="mainContent" style="display: none;">
 
 
 
@@ -78,7 +77,7 @@
 
 <nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top" id="navbar_main">
   <div class="container-fluid">
-  <span class="navbar-brand mb-0 h1">
+  <span class="navbar-brand mb-0 h1" style="margin-right: 40px;">
     <span style="background-color: white; padding: 1px 10px 5px 10px; border-radius: 2px;"><img src="data:image/webp;base64,UklGRoQDAABXRUJQVlA4WAoAAAAYAAAAIwAAIwAAVlA4TIgCAAAvI8AIENVIoq3t2Bbbtm3bNrNt27Zt27Zt27Y1d709bxpfw2y7D8N/rSe7oMYCgFB53xUYwV3moLpD5Yju0Eju0v6R3BIjMADZrRHdA261bc+SikNnfjsXoKP9rd4RTN8ELgAb/BMwgRNkneCrsKX6lyD/nfmaAFwjLqlexp0qN9226x6wt7JsqXdL/1bVqXf2jmWdjq6h9Ez6RYP+1/OccjSgNvNsJfkuXZMiC0S/aD0pMdPyAWwoyvyrjC8ZXSGve0/ol8A/mwsRZwHgRDx7tMuakXkb+cQjYp+eptlRayzA8orySeYMkW/u57sGvQmWD+fc3xD/kGrPR7Ddp2nJ/Vx9eATWN+e+5l2vbXoSV8sDso9sIJvICfKEZGe3aQMPWfDAHgf8yEUXD4c0LIx1kdqnHKH0YAFzaM5/ZWrpJzgF0EG6ooM+VAYJKNVGFHUoVUQMXagWnjRxmZ77/c1x3rYWZuSnpzFQQ9qQzV0FhROtV9RxOGW0d19xOCX0tnQ0q6Bk0drhTxDzzU4anu+4mOjDkiyWOzVIfisggPSWkirQQNozG6CBpRtrFcTL64JMMX+BCx50MNn6SXGFzK98gHFqmrFekFkKs34kUU6QiJZ2VDdiFuTyTUpBxBETwUxfBkPksx6TvTNrpibwnciv2jArTFWmCzLqrFWZrLE0Z2S4O+WIiB2cAMt+mgv1NnXw6acb5BzJbwWsBSypuD9B35QK24mgCKXS/kQR01MhOxNW8CqL/nBkeb5NoaWrz7fbVGCLcXe1pnrxfdUpjqZZ+PCzNS20aWQKOVStxdtUrDUH8ZNimNJTnx2OJd/4+emmW66cNCQHHHPaTDgIGaEhfEQnccQRrr5FWElG1gAAAElJKgAIAAAABgASAQMAAQAAAAEAAAAaAQUAAQAAAFYAAAAbAQUAAQAAAF4AAAAoAQMAAQAAAAIAAAAxAQIAEAAAAGYAAABphwQAAQAAAHYAAAAAAAAAYAAAAAEAAABgAAAAAQAAAHBhaW50Lm5ldCA1LjAuMgAFAACQBwAEAAAAMDIzMAGgAwABAAAAAQAAAAKgBAABAAAAJAAAAAOgBAABAAAAJAAAAAWgBAABAAAAuAAAAAAAAAACAAEAAgAEAAAAUjk4AAIABwAEAAAAMDEwMAAAAAA=" width="24" height="24" alt="Logo"></span>
     <script>document.write(language.GUI.Name);</script>
   </span>
@@ -133,7 +132,7 @@
 <script>document.write(language.GUI.tabModelInfo1);</script>
 </p>
 
-<img class="img-fluid" style="margin: 20px 0px; aspect-ratio: 275.81 / 121.34;" width="100%" id="modelImage" usemap="#modelImageMap" tabindex="0">
+<img class="img-fluid" style="margin: 20px 0px; aspect-ratio: 275.81 / 121.34; width: 100%;" id="modelImage" alt="" usemap="#modelImageMap" tabindex="0">
 <script>
 const modelImage=document.getElementById('modelImage');
 modelImage.src='./images/'+language.GUI.tabModelImage;
@@ -578,7 +577,7 @@ modelImage.alt=language.GUI.tabModel;
   <div class="col-md-4 mt-md-0 mt-4">
   <h3 class="h5 text-uppercase"><script>document.write(language.GUI.Name);</script></h3>
   <ul class="list-unstyled">
-    <li>&copy <a href="https://github.com/A-Herzog" target="_blank">Alexander Herzog</a></li>
+    <li>&copy; <a href="https://github.com/A-Herzog" target="_blank">Alexander Herzog</a></li>
     <li>
       <a href="https://github.com/A-Herzog/MiniSimulator" target="_blank" class="bi-github"> GitHub</a>
       <span id="PrivacyInfo1">,
@@ -596,7 +595,7 @@ modelImage.alt=language.GUI.tabModel;
 
   <div class="col-md-4 mb-md-0 mb-4" id="PrivacyInfo2">
   <h3 class="h5 text-uppercase"><script>document.write(language.GUI.PrivacyTitle);</script></h3>
-  <div class="text-secondary small"><script>document.write(language.GUI.PrivacyInfo);</script></div>
+  <div class="small" style="color: black;"><script>document.write(language.GUI.PrivacyInfo);</script></div>
   </div>
 
   <div class="col-md-4 mb-md-0 mb-4">
@@ -614,7 +613,7 @@ modelImage.alt=language.GUI.tabModel;
   </div>
 </footer>
 
-</span>
+</div>
 </body>
 
 <script>
