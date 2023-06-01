@@ -47,14 +47,23 @@
     for (let area of document.querySelectorAll('#modelImageMap area')) {
       let href=area.href;
       href=href.substr(href.indexOf('#'));
-      const text=document.querySelector(href).innerText;
+      let text=document.querySelector(href).innerText;
+      if (text.indexOf("document.write(")>=0) text=text.substr(text.indexOf(");")+2);
       area.alt=text;
       area.title=text;
     }
-    fetch('./js/info_software_'+language.GUI.imageMode+'.html').then(response=>response.text().then(text=>{
-      document.getElementById('SoftwareInfo').innerHTML=text;
-      rewriteLinksInOfflineMode();
-    }));
+    if (isDesktopApp) {
+      fetch('./js/info_software_'+language.GUI.imageMode+'.html').then(response=>response.text().then(text=>{
+        document.getElementById('SoftwareInfo').innerHTML=text;
+        rewriteLinksInOfflineMode();
+      }));
+    } else {
+      fetch('./js/info_softwareDownload_'+language.GUI.imageMode+'.html').then(response=>response.text().then(text1=>{
+        fetch('./js/info_software_'+language.GUI.imageMode+'.html').then(response=>response.text().then(text2=>{
+        document.getElementById('SoftwareInfo').innerHTML=text1+text2;
+        }));
+      }));
+    }
     initModel(false);
     if (isDesktopApp) {
       PrivacyInfo1.style.display="none";
@@ -614,7 +623,6 @@ modelImage.alt=language.GUI.tabModel;
 </footer>
 
 </div>
-</body>
 
 <script>
   const pageUrl='info'+((language.GUI.imageMode=='de')?'_de':'')+'.html';
@@ -639,4 +647,5 @@ modelImage.alt=language.GUI.tabModel;
   }
 </script>
 
+</body>
 </html>

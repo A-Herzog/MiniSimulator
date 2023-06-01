@@ -8,7 +8,11 @@ To use simulator just go to
 
 **[a-herzog.github.io/MiniSimulator](https://a-herzog.github.io/MiniSimulator/)**
 
-![Website status](https://img.shields.io/website?url=https%3A%2F%2Fa-herzog.github.io%MiniSimulator%2F)
+![Website status](https://img.shields.io/website?url=https%3A%2F%2Fa-herzog.github.io%2FMiniSimulator%2F)
+
+You can also download the simulator as an offline usable Windows application:
+
+**[MiniSimulator.exe](https://github.com/A-Herzog/MiniSimulator/releases/latest/download/MiniSimulator.exe)**
 
 ## License
 
