@@ -14,12 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-'use strict';
-
-self.importScripts("SimCore.js");
-self.importScripts("StatCore.js");
-self.importScripts("DistCore.js");
-self.importScripts("Callcenter.js");
+import {callcenter} from "./Callcenter.js";
+import {simcore} from './SimCore.js';
 
 onmessage = function(e) {
   const workerIndex=e.data.index;

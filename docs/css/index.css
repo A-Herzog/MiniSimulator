@@ -21,6 +21,11 @@ input:invalid {
   color: red;
 }
 
+.form-control:focus {
+  box-shadow: none;
+  border-color: unset;
+}
+
 .popover-header {
   background-color: red;
   color: white;

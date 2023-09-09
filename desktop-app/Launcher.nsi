@@ -31,7 +31,7 @@ Section ""
 
   File "..\dist\MiniSimulator\MiniSimulator-win_x64.exe"
   File "..\dist\MiniSimulator\resources.neu"
-  File "..\dist\MiniSimulator\WebView2Loader.dll"
+  ;File "..\dist\MiniSimulator\WebView2Loader.dll"
 
   ExecWait "$TEMP\${PrgTempPathName}\MiniSimulator-win_x64.exe"
 

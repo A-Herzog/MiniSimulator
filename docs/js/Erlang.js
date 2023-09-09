@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-'use strict';
+export {PotenzFakultaet, MMcZustandsP0, MMcZustandsP, ErlangC_P1, ErlangC_P2, ErlangC, ErlangC_ENQ, ErlangC_EN, ErlangC_EW, ErlangC_EV, ErlangB, MMcKMZustandsP, ErwErlangC_PA, ErwErlangC, ErwErlangC_ENQ, ErwErlangC_EN, ErwErlangC_EW, ErwErlangC_EV}
 
 
 

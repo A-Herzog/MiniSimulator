@@ -14,7 +14,11 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-'use strict';
+export {selectLanguage, rewriteLinksInOfflineMode, initModel, resetModel, toggleExplanations, runFull, runLog, cleanOutput, terminateSimulation}
+
+import {callcenter} from "./Callcenter.js";
+import {statcore} from './StatCore.js';
+import {ErlangC_P2, ErlangC_ENQ, ErlangC_EN, ErlangC_EW, ErlangC_EV, ErwErlangC_ENQ, ErwErlangC_EN, ErwErlangC_EW, ErwErlangC_EV} from './Erlang.js';
 
 /* Sprachauswahl */
 
@@ -55,14 +59,6 @@ let worker=[];
 
 let multiCoreArrivalsDone=[];
 let multiCorePartialResults=[];
-
-function getMultiCoreText() {
-  if (typeof(navigator)=='undefined' || typeof(navigator.hardwareConcurrency)=='undefined') {
-    return language.multiCore.two;
-  } else {
-    return ''+navigator.hardwareConcurrency+language.multiCore.number;
-  }
-}
 
 function initModel() {
   resetModel(false);
@@ -148,8 +144,6 @@ function resetModel(showConfirm, modelType=1) {
 function toggleExplanations() {
   const isVisible=document.querySelector('.cardInfo').style.display!='none';
 
-  console.log(isVisible);
-
   if (isVisible) {
     for (let element of document.querySelectorAll('.cardInfo')) element.style.display="none";
     document.getElementById('toggleExplanationsButton').innerHTML=language.GUI.explanationsShow;
@@ -203,7 +197,7 @@ function showProgress(part) {
 }
 
 function getWebWorker() {
-  return new Worker('./js/Worker.js');
+  return new Worker('./js/Worker.js',{type: "module"});
 }
 
 function runFull() {
@@ -225,11 +219,13 @@ function runFull() {
   document.getElementById('buttonTerminate').style.display="";
   window.scrollTo(0,document.getElementById('outputOuter').getBoundingClientRect().top+window.scrollY-100);
 
+  const coreCount=navigator.hardwareConcurrency;
+
   worker=[];
   let workerModel;
   if (document.getElementById('useMultiCore').checked) {
-	for (let i=0;i<navigator.hardwareConcurrency;i++) worker.push(getWebWorker());
-    workerModel=runFullMultiCore(model,navigator.hardwareConcurrency);
+	  for (let i=0;i<coreCount;i++) worker.push(getWebWorker());
+    workerModel=runFullMultiCore(model,coreCount);
   } else {
 	  worker.push(getWebWorker());
     workerModel=runFullSingleCore(model);
@@ -247,7 +243,8 @@ function runFullSingleCore(model) {
 	  showProgress(result.arrivals/model.arrivalCount);
     }
     if (result.mode=="Result") {
-	  document.getElementById('output').innerHTML=buildStatisticText(result.statistics,result.arrivals,result.events,result.time,1,model);
+	    document.getElementById('output').innerHTML=buildStatisticText(result.statistics,result.arrivals,result.events,result.time,1,model);
+      worker[0].terminate();
       setSimulationRunning(false);
     }
   }
@@ -270,7 +267,7 @@ function runFullMultiCore(model,threadCount) {
   /* Fortschrittserfassung initialisieren */
   multiCoreArrivalsDone=[];
   for (let i=0;i<threadCount;i++) multiCoreArrivalsDone.push(0);
-multiCorePartialResults=[];
+  multiCorePartialResults=[];
 
   /* Callbacks für Worker */
   for (let i=0;i<threadCount;i++) worker[i].onmessage=function(e) {
@@ -286,6 +283,7 @@ multiCorePartialResults=[];
 	  multiCorePartialResults.push({statistics: result.statistics, arrivals: result.arrivals, events: result.events, time: result.time});
 	  if (multiCorePartialResults.length==threadCount) {
 	    document.getElementById('output').innerHTML=buildMultiCoreStatisticText(model);
+      for (let i=0;i<worker.length;i++) worker[i].terminate();
 		  setSimulationRunning(false);
 	  }
     }

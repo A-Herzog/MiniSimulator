@@ -19,34 +19,33 @@
   -->
   <title>Distribution test</title>
   <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
-  <script src="./js/Language.js"></script>
-  <script src="./js/SimCore.js"></script>
-  <script src="./js/StatCore.js"></script>
-  <script src="./js/DistCore.js"></script>
-  <script src="./js/Callcenter.js"></script>
-  <script src="index.js"></script>
 </head>
 <body>
 
-<pre>
-<script>
-
-function testDist(distName) {
-  const stat=new statcore.Values();
-  const rnd=distcore.get(distName);
-  for (let i=0;i<100_000;i++) stat.add(rnd());
-  document.writeln(distName);
-  document.writeln("mean="+stat.mean);
-  document.writeln("sd="+stat.sd);
-  document.writeln('');
-}
-
-testDist("exp(5)");
-testDist("lognormal(5;3)");
-testDist("gamma(5;3)");
-
-</script>
-</pre>
+<pre id="output"></pre>
 
 </body>
+
+<script type="module">
+
+import {statcore} from './js/StatCore.js';
+import {distcore} from './js/DistCore.js';
+
+function testDist(count, distName) {
+  const stat=new statcore.Values();
+  const rnd=distcore.get(distName);
+  for (let i=0;i<count;i++) stat.add(rnd());
+  return distName+"\nmean="+stat.mean+"\nsd="+stat.sd+"\n\n";
+}
+
+const count=100_000;
+let result="";
+result+="Number of random samples: "+count+"\n\n";
+result+=testDist(count,"exp(5)");
+result+=testDist(count,"lognormal(5;3)");
+result+=testDist(count,"gamma(5;3)");
+output.innerHTML=result;
+
+</script>
+
 </html>

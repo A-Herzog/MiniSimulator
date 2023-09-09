@@ -14,7 +14,11 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-'use strict';
+export{callcenter}
+
+import {distcore} from './DistCore.js';
+import {statcore} from './StatCore.js';
+import {simcore} from './SimCore.js';
 
 const callcenter={};
 

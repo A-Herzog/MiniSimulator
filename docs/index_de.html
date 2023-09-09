@@ -33,50 +33,15 @@
   <link href="./css/index.css" rel="stylesheet" media="none" onload="if(media!='all')media='all'">
   <script defer src="./libs/bootstrap.bundle.min.js" integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN"></script>
   <script src="./js/Language.js"></script>
-  <script defer src="./js/SimCore.js"></script>
-  <script defer src="./js/StatCore.js"></script>
-  <script defer src="./js/DistCore.js"></script>
-  <script defer src="./js/Callcenter.js"></script>
-  <script defer src="./js/Erlang.js"></script>
   <script src="./libs/neutralino.js"></script>
-  <script src="./js/index.js"></script>
   <script>
-  const isDesktopApp=(typeof(NL_OS)!='undefined'); if (isDesktopApp) Neutralino.init();
-  selectLanguage([{name: "default", file: "index.html"}, {name: "de", file: "index_de.html"}]);
-  function initPage() {
-    for (let area of document.querySelectorAll('#modelImageMap area')) {
-      let href=area.href;
-      href=href.substr(href.indexOf('#'));
-      let text=document.querySelector(href).innerText;
-      if (text.indexOf("document.write(")>=0) text=text.substr(text.indexOf(");")+2);
-      area.alt=text;
-      area.title=text;
-    }
-    if (isDesktopApp) {
-      fetch('./js/info_software_'+language.GUI.imageMode+'.html').then(response=>response.text().then(text=>{
-        document.getElementById('SoftwareInfo').innerHTML=text;
-        rewriteLinksInOfflineMode();
-      }));
-    } else {
-      fetch('./js/info_softwareDownload_'+language.GUI.imageMode+'.html').then(response=>response.text().then(text1=>{
-        fetch('./js/info_software_'+language.GUI.imageMode+'.html').then(response=>response.text().then(text2=>{
-        document.getElementById('SoftwareInfo').innerHTML=text1+text2;
-        }));
-      }));
-    }
-    initModel(false);
-    if (isDesktopApp) {
-      PrivacyInfo1.style.display="none";
-      PrivacyInfo2.style.display="none";
-      document.querySelector("div.container h1").style.display="none";
-    }
-    mainContent.style.display="";
-    infoLoading.style.display="none";
-  }
+    const isDesktopApp=(typeof(NL_OS)!='undefined');
+    if (isDesktopApp) Neutralino.init();
+    const getMultiCoreText=()=>(typeof(navigator)=='undefined' || typeof(navigator.hardwareConcurrency)=='undefined')?language.multiCore.two:(''+navigator.hardwareConcurrency+language.multiCore.number);
   </script>
 </head>
 
-<body data-bs-spy="scroll" data-bs-target="#navbar_main" data-bs-offset="150" onload="initPage()">
+<body data-bs-spy="scroll" data-bs-target="#navbar_main" data-bs-offset="150">
 <div id="infoLoading">Loading...</div>
 <div id="mainContent" style="display: none;">
 
@@ -148,30 +113,28 @@ modelImage.src='./images/'+language.GUI.tabModelImage;
 modelImage.alt=language.GUI.tabModel;
 </script>
 <map name="modelImageMap" id="modelImageMap">
-  <area shape="rect" coords="0,122,190,174" href="#linkArrival">
-  <area shape="rect" coords="193,63,382,344" href="#linkQueue">
-  <area shape="rect" coords="32,216,342,460" href="#linkQueue">
-  <area shape="rect" coords="382,74,819,262" href="#linkService">
+  <area shape="rect" coords="0,122,190,174" href="#linkArrival" alt="arrival">
+  <area shape="rect" coords="193,63,382,344" href="#linkQueue" alt="queue">
+  <area shape="rect" coords="32,216,342,460" href="#linkQueue" alt="queue">
+  <area shape="rect" coords="382,74,819,262" href="#linkService" alt="">
 </map>
 
 <p>
 <script>document.write(language.GUI.tabModelInfo2);</script>
 </p>
 
-<p>
 <div class="dropdown" style="display: inline">
   <button class="btn btn-success dropdown-toggle" type="button" id="dropdownMenuResetModel" data-bs-toggle="dropdown" aria-expanded="false">
     <i class="bi bi-box" role="img" aria-hidden="true"></i> <script>document.write(language.GUI.resetSettingsButton);</script>
   </button>
   <ul class="dropdown-menu" aria-labelledby="dropdownMenuResetModel">
-    <li><a class="dropdown-item" href="javascript:resetModel(true,0);"><script>document.write(language.GUI.resetSettingsMD1);</script></a></li>
-    <li><a class="dropdown-item" href="javascript:resetModel(true,1);"><script>document.write(language.GUI.resetSettingsMM1);</script></a></li>
-    <li><a class="dropdown-item" href="javascript:resetModel(true,2);"><script>document.write(language.GUI.resetSettingsMMc);</script></a></li>
-    <li><a class="dropdown-item" href="javascript:resetModel(true,3);"><script>document.write(language.GUI.resetSettingsMGc);</script></a></li>
+    <li><button class="dropdown-item" id="resetButton1"><script>document.write(language.GUI.resetSettingsMD1);</script></button></li>
+    <li><button class="dropdown-item" id="resetButton2"><script>document.write(language.GUI.resetSettingsMM1);</script></button></li>
+    <li><button class="dropdown-item" id="resetButton3"><script>document.write(language.GUI.resetSettingsMMc);</script></button></li>
+    <li><button class="dropdown-item" id="resetButton4"><script>document.write(language.GUI.resetSettingsMGc);</script></button></li>
   </ul>
 </div>
-<button type="button" class="btn btn-warning bi-arrows-collapse" id="toggleExplanationsButton" onclick="toggleExplanations()"><script>document.write(language.GUI.explanationsHide);</script></button>
-</p>
+<button type="button" class="btn btn-warning bi-arrows-collapse" id="toggleExplanationsButton"><script>document.write(language.GUI.explanationsHide);</script></button>
 
 </div>
 
@@ -195,11 +158,18 @@ modelImage.alt=language.GUI.tabModel;
     <p class="card-text">
     <label for="interArrivalTimesDistribution"><b><script>document.write(language.model.distributionInterArrivalTime);</script></b></label>
     <select class="form-control" id="interArrivalTimesDistribution">
-      <option value="0"><script>document.write(language.model.distributionDeterministic);</script></option>
-      <option value="1" selected="selected"><script>document.write(language.model.distributionExponential);</script></option>
-      <option value="2"><script>document.write(language.model.distributionLogNormal);</script></option>
-    <option value="3"><script>document.write(language.model.distributionGamma);</script></option>
+      <option value="0">0</option>
+      <option value="1" selected="selected">1</option>
+      <option value="2">2</option>
+    <option value="3">3</option>
     </select>
+    <script>
+    const interArrivalTimesDistributionOptions=interArrivalTimesDistribution.getElementsByTagName("option");
+    interArrivalTimesDistributionOptions[0].innerHTML=language.model.distributionDeterministic;
+    interArrivalTimesDistributionOptions[1].innerHTML=language.model.distributionExponential;
+    interArrivalTimesDistributionOptions[2].innerHTML=language.model.distributionLogNormal;
+    interArrivalTimesDistributionOptions[3].innerHTML=language.model.distributionGamma;
+    </script>
     <label for="interArrivalTimesDistributionMean"><b><script>document.write(language.model.averageInterArrivalTime);</script></b></label>
     <input type="text" class="form-control" id="interArrivalTimesDistributionMean" aria-describedby="interArrivalTimesDistributionMeanHelp" value="100">
     <small id="interArrivalTimesDistributionMeanHelp" class="form-text text-muted"><script>document.write(language.model.infoPositiveNumber);</script></small>
@@ -221,7 +191,7 @@ modelImage.alt=language.GUI.tabModel;
     </p>
     <p class="card-text">
     <label for="batchArrival"><b><script>document.write(language.model.arrivalBatchSize);</script></b></label>
-    <input type="number" class="form-control" id="batchArrival" aria-describedby="batchArrivalHelp" value="1" min="1" pattern="\d*">
+    <input type="number" class="form-control" id="batchArrival" aria-describedby="batchArrivalHelp" value="1" min="1">
     <small id="batchArrivalHelp" class="form-text text-muted"><script>document.write(language.model.arrivalBatchSizeInfo2);</script></small>
     </p>
     </div>
@@ -254,7 +224,7 @@ modelImage.alt=language.GUI.tabModel;
     <input type="checkbox" id="hasWaitingRoomSize" checked="checked">
     <label for="hasWaitingRoomSize"><b><script>document.write(language.model.finiteWaitingRoomSize)</script></b></label>
     <label for="waitingRoomSize"><b><script>document.write(language.model.waitingRoomSize);</script></b></label>
-    <input type="number" class="form-control" id="waitingRoomSize" aria-describedby="waitingRoomSizeHelp" value="1000000" min="0" pattern="\d*">
+    <input type="number" class="form-control" id="waitingRoomSize" aria-describedby="waitingRoomSizeHelp" value="1000000" min="0">
     <small id="waitingRoomSizeHelp" class="form-text text-muted"><script>document.write(language.model.waitingRoomSizeInfo2);</script></small>
     </p>
     </div>
@@ -274,11 +244,18 @@ modelImage.alt=language.GUI.tabModel;
     <label for="hasImpatience"><b><script>document.write(language.model.finiteWaitingTimeTolerance)</script></b></label>
     <label for="waitingTimeToleranceDistribution"><b><script>document.write(language.model.distributionWaitingTimeTolerance)</script></b></label>
     <select class="form-control" id="waitingTimeToleranceDistribution">
-      <option value="0" selected="selected"><script>document.write(language.model.distributionDeterministic);</script></option>
-      <option value="1"><script>document.write(language.model.distributionExponential);</script></option>
-      <option value="2"><script>document.write(language.model.distributionLogNormal);</script></option>
-    <option value="3"><script>document.write(language.model.distributionGamma);</script></option>
+      <option value="0" selected="selected">0</option>
+      <option value="1">1</option>
+      <option value="2">2</option>
+    <option value="3">3</option>
     </select>
+    <script>
+    const waitingTimeToleranceDistributionOptions=waitingTimeToleranceDistribution.getElementsByTagName("option");
+    waitingTimeToleranceDistributionOptions[0].innerHTML=language.model.distributionDeterministic;
+    waitingTimeToleranceDistributionOptions[1].innerHTML=language.model.distributionExponential;
+    waitingTimeToleranceDistributionOptions[2].innerHTML=language.model.distributionLogNormal;
+    waitingTimeToleranceDistributionOptions[3].innerHTML=language.model.distributionGamma;
+    </script>
     <label for="waitingTimeToleranceDistributionMean"><b><script>document.write(language.model.averageWaitingTimeTolerance)</script></b></label>
     <input type="text" class="form-control" id="waitingTimeToleranceDistributionMean" aria-describedby="waitingTimeToleranceDistributionMeanHelp" value="8640000">
     <small id="waitingTimeToleranceDistributionMeanHelp" class="form-text text-muted"><script>document.write(language.model.infoPositiveNumber);</script></small>
@@ -323,11 +300,18 @@ modelImage.alt=language.GUI.tabModel;
     <p class="card-text">
     <label for="retryDistribution"><b><script>document.write(language.model.distributionRetryTime)</script></b></label>
     <select class="form-control" id="retryDistribution">
-      <option value="0"><script>document.write(language.model.distributionDeterministic);</script></option>
-      <option value="1" selected="selected"><script>document.write(language.model.distributionExponential);</script></option>
-      <option value="2"><script>document.write(language.model.distributionLogNormal);</script></option>
-    <option value="3"><script>document.write(language.model.distributionGamma);</script></option>
+      <option value="0">0</option>
+      <option value="1" selected="selected">1</option>
+      <option value="2">2</option>
+    <option value="3">3</option>
     </select>
+    <script>
+    const retryDistributionOptions=retryDistribution.getElementsByTagName("option");
+    retryDistributionOptions[0].innerHTML=language.model.distributionDeterministic;
+    retryDistributionOptions[1].innerHTML=language.model.distributionExponential;
+    retryDistributionOptions[2].innerHTML=language.model.distributionLogNormal;
+    retryDistributionOptions[3].innerHTML=language.model.distributionGamma;
+    </script>
     <label for="retryDistributionMean"><b><script>document.write(language.model.averageRetryTime)</script></b></label>
     <input type="text" class="form-control" id="retryDistributionMean" aria-describedby="retryDistributionMeanHelp" value="1800">
     <small id="retryDistributionMeanHelp" class="form-text text-muted"><script>document.write(language.model.infoPositiveNumber);</script></small>
@@ -363,7 +347,7 @@ modelImage.alt=language.GUI.tabModel;
     </p>
     <p class="card-text">
     <label for="agents"><b><script>document.write(language.model.numberOfOperators);</script></b></label>
-    <input type="number" class="form-control" id="agents" aria-describedby="agentsHelp" value="1" min="1" pattern="\d*">
+    <input type="number" class="form-control" id="agents" aria-describedby="agentsHelp" value="1" min="1">
     <small id="agentsHelp" class="form-text text-muted"><script>document.write(language.model.numberOfOperatorsInfo2);</script></small>
     </p>
     </div>
@@ -381,10 +365,16 @@ modelImage.alt=language.GUI.tabModel;
     <p class="card-text">
     <label for="queueingDiscipline"><b><script>document.write(language.model.servicePolicy);</script></b></label>
     <select class="form-control" id="queueingDiscipline">
-      <option value="0" selected="selected"><script>document.write(language.model.servicePolicyFIFO);</script></option>
-      <option value="1"><script>document.write(language.model.servicePolicyLIFO);</script></option>
-      <option value="2"><script>document.write(language.model.servicePolicyRandom);</script></option>
+      <option value="0" selected="selected">0</option>
+      <option value="1">1</option>
+      <option value="2">2</option>
     </select>
+    <script>
+    const queueingDisciplineOptions=queueingDiscipline.getElementsByTagName("option");
+    queueingDisciplineOptions[0].innerHTML=language.model.servicePolicyFIFO;
+    queueingDisciplineOptions[1].innerHTML=language.model.distributionExponential;
+    queueingDisciplineOptions[2].innerHTML=language.model.servicePolicyLIFO;
+    </script>
     </p>
     </div>
   </div>
@@ -407,11 +397,18 @@ modelImage.alt=language.GUI.tabModel;
     <p class="card-text cardInfo">
     <label for="serviceTimesDistribution"><b><script>document.write(language.model.distributionServiceTime);</script></b></label>
     <select class="form-control" id="serviceTimesDistribution">
-      <option value="0"><script>document.write(language.model.distributionDeterministic);</script></option>
-      <option value="1" selected="selected"><script>document.write(language.model.distributionExponential);</script></option>
-      <option value="2"><script>document.write(language.model.distributionLogNormal);</script></option>
-    <option value="3"><script>document.write(language.model.distributionGamma);</script></option>
+      <option value="0">0</option>
+      <option value="1" selected="selected">1</option>
+      <option value="2">2</option>
+    <option value="3">3</option>
     </select>
+    <script>
+    const serviceTimesDistributionOptions=serviceTimesDistribution.getElementsByTagName("option");
+    serviceTimesDistributionOptions[0].innerHTML=language.model.distributionDeterministic;
+    serviceTimesDistributionOptions[1].innerHTML=language.model.distributionExponential;
+    serviceTimesDistributionOptions[2].innerHTML=language.model.distributionLogNormal;
+    serviceTimesDistributionOptions[3].innerHTML=language.model.distributionGamma;
+    </script>
     <label for="serviceTimesDistributionMean"><b><script>document.write(language.model.averageServiceTime);</script></b></label>
     <input type="text" class="form-control" id="serviceTimesDistributionMean" aria-describedby="serviceTimesDistributionMeanHelp" value="80">
     <small id="serviceTimesDistributionMeanHelp" class="form-text text-muted"><script>document.write(language.model.infoPositiveNumber);</script></small>
@@ -433,7 +430,7 @@ modelImage.alt=language.GUI.tabModel;
     </p>
     <p class="card-text">
     <label for="batchService"><b><script>document.write(language.model.serviceBatchSize);</script></b></label>
-    <input type="number" class="form-control" id="batchService" aria-describedby="batchServiceHelp" value="1" min="1" pattern="\d*">
+    <input type="number" class="form-control" id="batchService" aria-describedby="batchServiceHelp" value="1" min="1">
     <small id="batchServiceHelp" class="form-text text-muted"><script>document.write(language.model.serviceBatchSizeInfo2);</script></small>
     </p>
     </div>
@@ -456,11 +453,18 @@ modelImage.alt=language.GUI.tabModel;
     <p class="card-text">
     <label for="postProcessingTimesDistribution"><b><script>document.write(language.model.distributionPostProcessingTime);</script></b></label>
     <select class="form-control" id="postProcessingTimesDistribution">
-      <option value="0" selected="selected"><script>document.write(language.model.distributionDeterministic);</script></option>
-      <option value="1"><script>document.write(language.model.distributionExponential);</script></option>
-      <option value="2"><script>document.write(language.model.distributionLogNormal);</script></option>
-    <option value="3"><script>document.write(language.model.distributionGamma);</script></option>
+      <option value="0" selected="selected">0</option>
+      <option value="1">1</option>
+      <option value="2">2</option>
+    <option value="3">3</option>
     </select>
+    <script>
+    const postProcessingTimesDistributionOptions=postProcessingTimesDistribution.getElementsByTagName("option");
+    postProcessingTimesDistributionOptions[0].innerHTML=language.model.distributionDeterministic;
+    postProcessingTimesDistributionOptions[1].innerHTML=language.model.distributionExponential;
+    postProcessingTimesDistributionOptions[2].innerHTML=language.model.distributionLogNormal;
+    postProcessingTimesDistributionOptions[3].innerHTML=language.model.distributionGamma;
+    </script>
     <label for="postProcessingTimesDistributionMean"><b><script>document.write(language.model.averagePostProcessingTime);</script></b></label>
     <input type="text" class="form-control" id="postProcessingTimesDistributionMean" aria-describedby="postProcessingTimesDistributionMeanHelp" value="0">
     <small id="postProcessingTimesDistributionMeanHelp" class="form-text text-muted"><script>document.write(language.model.infoNonNegativeNumber);</script></small>
@@ -513,12 +517,12 @@ modelImage.alt=language.GUI.tabModel;
     </p>
     <p class="card-text">
     <label for="arrivalCount"><b><script>document.write(language.model.numberOfArrivals);</script></b></label>
-    <input type="number" class="form-control" id="arrivalCount" aria-describedby="arrivalCountHelp" value="1000000" min="1" pattern="\d*">
+    <input type="number" class="form-control" id="arrivalCount" aria-describedby="arrivalCountHelp" value="1000000" min="1">
     <small id="arrivalCountHelp" class="form-text text-muted"><script>document.write(language.model.numberOfArrivalsInfo);</script></small>
     </p>
     <p class="card-text">
     <label for="arrivalCountWarmUp"><b><script>document.write(language.model.warmUpPhase);</script></b></label>
-    <input type="number" class="form-control" id="arrivalCountWarmUp" aria-describedby="arrivalCountWarmUpHelp" value="0" min="0" pattern="\d*">
+    <input type="number" class="form-control" id="arrivalCountWarmUp" aria-describedby="arrivalCountWarmUpHelp" value="0" min="0">
     <small id="arrivalCountWarmUpHelp" class="form-text text-muted"><script>document.write(language.model.warmUpPhaseInfo);</script></small>
     </p>
     <p class="card-text">
@@ -526,7 +530,7 @@ modelImage.alt=language.GUI.tabModel;
     <label for="useMultiCore"><b><script>document.write(getMultiCoreText());</script></b></label>
     <small id="useMultiCoreHelp" class="form-text text-muted"><script>document.write(language.multiCore.info);</script></small>
     </p>
-    <a href="javascript:runFull();" class="btn btn-success bi-arrow-right-circle" id="buttonRunFull"> <script>document.write(language.GUI.startSimulation);</script></a>
+    <button class="btn btn-success bi-arrow-right-circle" id="buttonRunFull"> <script>document.write(language.GUI.startSimulation);</script></button>
     </div>
   </div>
 
@@ -539,7 +543,7 @@ modelImage.alt=language.GUI.tabModel;
     <p class="card-text">
     <script>document.write(language.GUI.recordSimulationInfo);</script>
     </p>
-    <a href="javascript:runLog();" class="btn btn-success bi-arrow-right-circle" id="buttonRunLog"> <script>document.write(language.GUI.startSimulation);</script></a>
+    <button class="btn btn-success bi-arrow-right-circle" id="buttonRunLog"> <script>document.write(language.GUI.startSimulation);</script></button>
     </div>
   </div>
 
@@ -556,8 +560,8 @@ modelImage.alt=language.GUI.tabModel;
     <div class="progress" id="progress" style="display: none; margin-bottom: 20px;"><div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" id="progressBar"></div></div>
     <p class="card-text border" id="output" style="padding: 5px;">
     </p>
-    <a href="javascript:cleanOutput();" class="btn btn-secondary bi-trash" id="buttonClear"> <script>document.write(language.GUI.outputClear);</script></a>
-    <a href="javascript:terminateSimulation();" class="btn btn-danger bi-x-circle" id="buttonTerminate" style="display: none;"> <script>document.write(language.GUI.cancelSimulation);</script></a>
+    <button class="btn btn-secondary bi-trash" id="buttonClear"> <script>document.write(language.GUI.outputClear);</script></button>
+    <button class="btn btn-danger bi-x-circle" id="buttonTerminate" style="display: none;"> <script>document.write(language.GUI.cancelSimulation);</script></button>
     </div>
   </div>
 
@@ -648,4 +652,59 @@ modelImage.alt=language.GUI.tabModel;
 </script>
 
 </body>
+
+<script type="module">
+
+import {selectLanguage, rewriteLinksInOfflineMode, initModel, resetModel, toggleExplanations, runFull, runLog, cleanOutput, terminateSimulation} from './js/index.js';
+
+selectLanguage([{name: "default", file: "index.html"}, {name: "de", file: "index_de.html"}]);
+
+for (let area of document.querySelectorAll('#modelImageMap area')) {
+  let href=area.href;
+  href=href.substr(href.indexOf('#'));
+  let text=document.querySelector(href).innerText;
+  if (text.indexOf("document.write(")>=0) text=text.substr(text.indexOf(");")+2);
+  area.alt=text;
+  area.title=text;
+}
+
+toggleExplanationsButton.onclick=toggleExplanations;
+resetButton1.onclick=()=>resetModel(true,0);
+resetButton2.onclick=()=>resetModel(true,1);
+resetButton3.onclick=()=>resetModel(true,2);
+resetButton4.onclick=()=>resetModel(true,3);
+
+buttonRunFull.onclick=()=>{runFull(); return false;}
+buttonRunLog.onclick=()=>{runLog(); return false;}
+buttonClear.onclick=()=>cleanOutput();
+buttonTerminate.onclick=()=>terminateSimulation();
+
+if (isDesktopApp) {
+  fetch('./js/info_software_'+language.GUI.imageMode+'.html').then(response=>response.text().then(text=>{
+    document.getElementById('SoftwareInfo').innerHTML=text;
+    rewriteLinksInOfflineMode();
+  }));
+} else {
+  fetch('./js/info_softwareDownload_'+language.GUI.imageMode+'.html').then(response=>response.text().then(text1=>{
+    fetch('./js/info_software_'+language.GUI.imageMode+'.html').then(response=>response.text().then(text2=>{
+    document.getElementById('SoftwareInfo').innerHTML=text1+text2;
+    }));
+  }));
+}
+
+document.querySelectorAll("input[type='number']").forEach(element=>element.pattern="\d*");
+
+initModel(false);
+
+if (isDesktopApp) {
+  PrivacyInfo1.style.display="none";
+  PrivacyInfo2.style.display="none";
+  document.querySelector("div.container h1").style.display="none";
+}
+
+mainContent.style.display="";
+infoLoading.style.display="none";
+
+</script>
+
 </html>
