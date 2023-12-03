@@ -1,5 +1,15 @@
-a {
-  color: #0050FF;
+[data-bs-theme="light"] {
+  a {
+    color: #0050FF;
+  }
+
+  nav a {
+    color: white;
+  }
+
+  a.btn-primary {
+    color: white;
+  }
 }
 
 h1 {
@@ -46,4 +56,22 @@ input:invalid {
 .active {
   background-color: #14E !important;
   border-radius: 4px !important;
+}
+
+footer a {
+  color: blue;
+}
+
+[data-bs-theme="dark"] {
+  .bg-primary {
+  background-color: rgba(var(--bs-secondary-rgb),var(--bs-bg-opacity)) !important;
+  }
+
+  .bg-light {
+    background-color: rgba(var(--bs-secondary-rgb),var(--bs-bg-opacity)) !important;
+  }
+  
+  footer a {
+    color: rgb(139, 185, 254)
+  }
 }
