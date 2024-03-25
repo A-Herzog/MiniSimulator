@@ -394,12 +394,16 @@ modelImage.alt=language.GUI.tabModel;
       <option value="0" selected="selected">0</option>
       <option value="1">1</option>
       <option value="2">2</option>
+      <option value="3">2</option>
+      <option value="4">2</option>
     </select>
     <script>
     const queueingDisciplineOptions=queueingDiscipline.getElementsByTagName("option");
     queueingDisciplineOptions[0].innerHTML=language.model.servicePolicyFIFO;
-    queueingDisciplineOptions[1].innerHTML=language.model.distributionExponential;
+    queueingDisciplineOptions[1].innerHTML=language.model.servicePolicyRandom;
     queueingDisciplineOptions[2].innerHTML=language.model.servicePolicyLIFO;
+    queueingDisciplineOptions[3].innerHTML=language.model.servicePolicySJF;
+    queueingDisciplineOptions[4].innerHTML=language.model.servicePolicyLJF;
     </script>
     </p>
     </div>

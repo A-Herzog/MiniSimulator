@@ -51,7 +51,7 @@ callcenter.Model=class Model {
     this.batchService=1;
     /* Number of operators in the system */
     this.agents=1;
-	  /* FIFO=0, LIFO=1, Random=2 */
+	  /* FIFO=0, Random=1, LIFO=2, SJF=3, LJF=4 */
 	  this.queueingDiscipline=0;
     /* Service time distribution (callback function generating a random number) */
     this.serviceTimesDistribution="exp(80)";
@@ -384,20 +384,36 @@ callcenter.Simulator=class Simulator extends simcore.Simulator {
     this.statistics.logArrival(this.time,isFreshCall);
 
     /* Queue or servce client */
-    this.processClient(new Client(this.time));
+    const client=new Client(this.time);
+    client.serviceTime=this.model.serviceTimesDistribution();
+    this.processClient(client);
   }
 
   getClientFromQueue() {
 	  let nextClient;
+    let index;
+    let serviceTime;
     switch (this.model.queueingDiscipline) {
       case 0: /* FIFO */
         nextClient=this.data.queue.shift();
         break;
-      case 1: /* LIFO */
+      case 1: /* Random */
+        index=Math.floor(Math.random()*this.data.queue.length);
+        nextClient=this.data.queue.splice(index,1)[0];
+        break;
+      case 2: /* LIFO */
         nextClient=this.data.queue.pop();
         break;
-      case 2: /* Random */
-        let index=Math.floor(Math.random()*this.data.queue.length);
+      case 3: /* SJF */
+        index=0;
+        serviceTime=this.data.queue[0].serviceTime;
+        for (let i=1;i<this.data.queue.length;i++) if (this.data.queue[i].serviceTime<serviceTime) {index=i; serviceTime=this.data.queue[i].serviceTime;}
+        nextClient=this.data.queue.splice(index,1)[0];
+        break;
+      case 4: /* LJF */
+        index=0;
+        serviceTime=this.data.queue[0].serviceTime;
+        for (let i=1;i<this.data.queue.length;i++) if (this.data.queue[i].serviceTime>serviceTime) {index=i; serviceTime=this.data.queue[i].serviceTime;}
         nextClient=this.data.queue.splice(index,1)[0];
         break;
     }
@@ -454,7 +470,17 @@ callcenter.Simulator=class Simulator extends simcore.Simulator {
     this.data.clientsInServiceProcess+=clients.length;
     this.statistics.updateState(this);
 
-    const serviceTime=this.model.serviceTimesDistribution();
+    /* Calculate service time */
+    let serviceTime=0;
+    const discipline=this.model.queueingDiscipline;
+    if (discipline==0 || discipline==1 || discipline==2) {
+      /* FIFO / Random / LIFO */
+      serviceTime=clients[0].serviceTime; /* Use service time of first client in batch - using max would result in biased service time */
+    } else {
+      for (let i=0;i<clients.length;i++) {
+        serviceTime=Math.max(serviceTime,clients[i].serviceTime); /* Using maximum is not perfect, but the best we can do. */
+      }
+    }
 
     for (let i=0;i<clients.length;i++) {
       clients[i].waitingTime=this.time-clients[i].startWaitingTime;
