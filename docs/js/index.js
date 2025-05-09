@@ -23,8 +23,9 @@ import {ErlangC_P2, ErlangC_ENQ, ErlangC_EN, ErlangC_EW, ErlangC_EV, ErwErlangC_
 /* Sprachauswahl */
 
 function selectLanguageFile(file) {
-  if (window.location.href.endsWith(file)) return;
+  if (window.location.href.endsWith(file)) return false;
   window.location.href='./'+file;
+  return true;
 }
 
 function selectLanguage(languages) {
@@ -34,9 +35,9 @@ function selectLanguage(languages) {
     const userLang=(navigator.language || navigator.userLanguage).toLocaleLowerCase();
     let preferredFile=languages.find(language=>language.name=='default').file;
     for (let language of languages) if (userLang.startsWith(language.name)) {preferredFile=language.file; break;}
-    selectLanguageFile(preferredFile);
+    return selectLanguageFile(preferredFile);
   } else {
-    selectLanguageFile(languages.find(language=>language.name==selectedLanguage).file);
+    return selectLanguageFile(languages.find(language=>language.name==selectedLanguage).file);
   }
 }
 

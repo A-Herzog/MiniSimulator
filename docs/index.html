@@ -685,73 +685,72 @@ modelImage.alt=language.GUI.tabModel;
 
 import {selectLanguage, rewriteLinksInOfflineMode, initModel, resetModel, toggleExplanations, runFull, runLog, cleanOutput, terminateSimulation} from './js/index.js';
 
-selectLanguage([{name: "default", file: "index.html"}, {name: "de", file: "index_de.html"}]);
+if (!selectLanguage([{name: "default", file: "index.html"}, {name: "de", file: "index_de.html"}])) {
+  menuLanguageMode.title=language.GUI.tabLanguageMode;
+  menuLanguageModeEn.innerHTML=language.GUI.tabLanguageModeEn;
+  menuLanguageModeDe.innerHTML=language.GUI.tabLanguageModeDe;
+  if (language.GUI.imageMode=="de") menuLanguageModeDe.classList.add("bi-check"); else menuLanguageModeEn.classList.add("bi-check");
 
-menuLanguageMode.title=language.GUI.tabLanguageMode;
-menuLanguageModeEn.innerHTML=language.GUI.tabLanguageModeEn;
-menuLanguageModeDe.innerHTML=language.GUI.tabLanguageModeDe;
-if (language.GUI.imageMode=="de") menuLanguageModeDe.classList.add("bi-check"); else menuLanguageModeEn.classList.add("bi-check");
+  menuColorMode.title=language.GUI.tabColorMode;
+  menuColorModeLight.innerHTML=language.GUI.tabColorModeLight;
+  menuColorModeDark.innerHTML=language.GUI.tabColorModeDark;
+  menuColorModeSystemDefault.innerHTML=language.GUI.tabColorModeSystemDefault;
 
-menuColorMode.title=language.GUI.tabColorMode;
-menuColorModeLight.innerHTML=language.GUI.tabColorModeLight;
-menuColorModeDark.innerHTML=language.GUI.tabColorModeDark;
-menuColorModeSystemDefault.innerHTML=language.GUI.tabColorModeSystemDefault;
+  let localStoreSelectedColorMode=localStorage.getItem('selectedColorMode');
+  if (localStoreSelectedColorMode==null) {
+    menuColorModeSystemDefault.classList.add("bi-check");
+    const mode=(document.documentElement.dataset.bsTheme=='dark')?language.GUI.tabColorModeDark:language.GUI.tabColorModeLight;
+    menuColorModeSystemDefault.innerHTML=menuColorModeSystemDefault.innerHTML+" ("+mode+")";
+  } else {
+    if (document.documentElement.dataset.bsTheme=='dark') menuColorModeDark.classList.add("bi-check"); else menuColorModeLight.classList.add("bi-check");
+  }
 
-let localStoreSelectedColorMode=localStorage.getItem('selectedColorMode');
-if (localStoreSelectedColorMode==null) {
-  menuColorModeSystemDefault.classList.add("bi-check");
-  const mode=(document.documentElement.dataset.bsTheme=='dark')?language.GUI.tabColorModeDark:language.GUI.tabColorModeLight;
-  menuColorModeSystemDefault.innerHTML=menuColorModeSystemDefault.innerHTML+" ("+mode+")";
-} else {
-  if (document.documentElement.dataset.bsTheme=='dark') menuColorModeDark.classList.add("bi-check"); else menuColorModeLight.classList.add("bi-check");
-}
+  for (let area of document.querySelectorAll('#modelImageMap area')) {
+    let href=area.href;
+    href=href.substr(href.indexOf('#'));
+    let text=document.querySelector(href).innerText;
+    if (text.indexOf("document.write(")>=0) text=text.substr(text.indexOf(");")+2);
+    area.alt=text;
+    area.title=text;
+  }
 
-for (let area of document.querySelectorAll('#modelImageMap area')) {
-  let href=area.href;
-  href=href.substr(href.indexOf('#'));
-  let text=document.querySelector(href).innerText;
-  if (text.indexOf("document.write(")>=0) text=text.substr(text.indexOf(");")+2);
-  area.alt=text;
-  area.title=text;
-}
+  toggleExplanationsButton.onclick=toggleExplanations;
+  resetButton1.onclick=()=>resetModel(true,0);
+  resetButton2.onclick=()=>resetModel(true,1);
+  resetButton3.onclick=()=>resetModel(true,2);
+  resetButton4.onclick=()=>resetModel(true,3);
 
-toggleExplanationsButton.onclick=toggleExplanations;
-resetButton1.onclick=()=>resetModel(true,0);
-resetButton2.onclick=()=>resetModel(true,1);
-resetButton3.onclick=()=>resetModel(true,2);
-resetButton4.onclick=()=>resetModel(true,3);
+  buttonRunFull.onclick=()=>{runFull(); return false;}
+  buttonRunLog.onclick=()=>{runLog(); return false;}
+  buttonClear.onclick=()=>cleanOutput();
+  buttonTerminate.onclick=()=>terminateSimulation();
 
-buttonRunFull.onclick=()=>{runFull(); return false;}
-buttonRunLog.onclick=()=>{runLog(); return false;}
-buttonClear.onclick=()=>cleanOutput();
-buttonTerminate.onclick=()=>terminateSimulation();
-
-if (isDesktopApp) {
-  fetch('./js/info_software_'+language.GUI.imageMode+'.html').then(response=>response.text().then(text=>{
-    document.getElementById('SoftwareInfo').innerHTML=text;
-    rewriteLinksInOfflineMode();
-  }));
-} else {
-  fetch('./js/info_softwareDownload_'+language.GUI.imageMode+'.html').then(response=>response.text().then(text1=>{
-    fetch('./js/info_software_'+language.GUI.imageMode+'.html').then(response=>response.text().then(text2=>{
-    document.getElementById('SoftwareInfo').innerHTML=text1+text2;
+  if (isDesktopApp) {
+    fetch('./js/info_software_'+language.GUI.imageMode+'.html').then(response=>response.text().then(text=>{
+      document.getElementById('SoftwareInfo').innerHTML=text;
+      rewriteLinksInOfflineMode();
     }));
-  }));
+  } else {
+    fetch('./js/info_softwareDownload_'+language.GUI.imageMode+'.html').then(response=>response.text().then(text1=>{
+      fetch('./js/info_software_'+language.GUI.imageMode+'.html').then(response=>response.text().then(text2=>{
+      document.getElementById('SoftwareInfo').innerHTML=text1+text2;
+      }));
+    }));
+  }
+
+  document.querySelectorAll("input[type='number']").forEach(element=>element.pattern="\d*");
+
+  initModel(false);
+
+  if (isDesktopApp) {
+    PrivacyInfo1.style.display="none";
+    PrivacyInfo2.style.display="none";
+    document.querySelector("div.container h1").style.display="none";
+  }
+
+  mainContent.style.display="";
+  infoLoading.style.display="none";
 }
-
-document.querySelectorAll("input[type='number']").forEach(element=>element.pattern="\d*");
-
-initModel(false);
-
-if (isDesktopApp) {
-  PrivacyInfo1.style.display="none";
-  PrivacyInfo2.style.display="none";
-  document.querySelector("div.container h1").style.display="none";
-}
-
-mainContent.style.display="";
-infoLoading.style.display="none";
-
 </script>
 
 </body>
