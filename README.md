@@ -12,7 +12,8 @@ To use simulator just go to
 
 You can also download the simulator as an offline usable Windows application:
 
-**[MiniSimulator.exe](https://github.com/A-Herzog/MiniSimulator/releases/latest/download/MiniSimulator.exe)**
+* **[MiniSimulator.exe](https://github.com/A-Herzog/MiniSimulator/releases/latest/download/MiniSimulator.exe)**
+* **[MiniSimulator_Linux_MacOS.zip](https://github.com/A-Herzog/MiniSimulator/releases/latest/download/MiniSimulator_Linux_MacOS.zip)**
 
 ## License
 
