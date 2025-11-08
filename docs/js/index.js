@@ -20,14 +20,24 @@ import {callcenter} from "./Callcenter.js";
 import {statcore} from './StatCore.js';
 import {ErlangC_P2, ErlangC_ENQ, ErlangC_EN, ErlangC_EW, ErlangC_EV, ErwErlangC_ENQ, ErwErlangC_EN, ErwErlangC_EW, ErwErlangC_EV} from './Erlang.js';
 
-/* Sprachauswahl */
+/* Language system */
 
+/**
+ * Switches to a specific language dependent file, if this file is not already to current location
+ * @param {string} file Name of the language file to be used
+ * @return Returns true if the language has to be changed / a new file has to be loaded.
+ */
 function selectLanguageFile(file) {
   if (window.location.href.endsWith(file)) return false;
   window.location.href='./'+file;
   return true;
 }
 
+/**
+ * Initializes the language system.
+ * @param {array} languages Array of language objects; each object has to have the properties "name" and "file". One fallback "default" named object has to be in the array.
+ * @return Returns true if the language has to be changed / a new file has to be loaded.
+ */
 function selectLanguage(languages) {
   let selectedLanguage=localStorage.getItem('selectedLanguage');
 
@@ -41,8 +51,9 @@ function selectLanguage(languages) {
   }
 }
 
-/* Umschreiben der Links für den Offline-Modus */
-
+/**
+ * Update links to open new windows in Neutralinos mode.
+ */
 function rewriteLinksInOfflineMode() {
   if (!isDesktopApp) return;
   for (let link of document.querySelectorAll("a")) if (link.href.startsWith('https://')) {
@@ -54,25 +65,34 @@ function rewriteLinksInOfflineMode() {
   }
 }
 
-/* Simulationssystem */
+/* Simulations system */
 
 let worker=[];
 
 let multiCoreArrivalsDone=[];
 let multiCorePartialResults=[];
 
+/**
+ * Add change listeners to input fields and start GUI.
+ */
 function initModel() {
   resetModel(false);
 
-  /* Warteraumgröße */
+  /* Waiting room size */
   document.getElementById('hasWaitingRoomSize').addEventListener('click',()=>updateGUI());
 
-  /* Wartezeittoleranz */
+  /* Waiting time tolerance */
   document.getElementById('hasImpatience').addEventListener('click',()=>updateGUI());
 
   updateGUI();
 }
 
+/**
+ * Loads an built-in example model.
+ * @param {Boolean} showConfirm Show confirmation dialog before resetting model=
+ * @param {Number} modelType Example model to load (value from 0 to 3; defaults to 1)
+ * @returns
+ */
 function resetModel(showConfirm, modelType=1) {
   if (showConfirm) {
     if (!confirm(language.GUI.resetSettings)) return;
@@ -105,13 +125,13 @@ function resetModel(showConfirm, modelType=1) {
       break;
   }
 
-  /* Ankünfte */
+  /* Arrivals */
   document.getElementById('batchArrival').value=1;
   document.getElementById('interArrivalTimesDistribution').value=arrivalProcess[0];
   document.getElementById('interArrivalTimesDistributionMean').value=arrivalProcess[1];
   document.getElementById('interArrivalTimesDistributionSD').value=arrivalProcess[2];
 
-  /* Warteraum */
+  /* Waiting room */
   document.getElementById('hasWaitingRoomSize').checked=false;
   document.getElementById('waitingRoomSize').value=1000000;
   document.getElementById('hasImpatience').checked=false;
@@ -123,7 +143,7 @@ function resetModel(showConfirm, modelType=1) {
   document.getElementById('retryDistributionMean').value=1800;
   document.getElementById('retryDistributionSD').value=1800;
 
-  /* Bedienung */
+  /* Service process */
   document.getElementById('queueingDiscipline').value=0;
   document.getElementById('agents').value=agents;
   document.getElementById('batchService').value=1;
@@ -142,6 +162,9 @@ function resetModel(showConfirm, modelType=1) {
   updateGUI();
 }
 
+/**
+ * Shows or hides the explanations texts.
+ */
 function toggleExplanations() {
   const isVisible=document.querySelector('.cardInfo').style.display!='none';
 
@@ -154,27 +177,42 @@ function toggleExplanations() {
   }
 }
 
+/**
+ * Enables or disables an input element.
+ * @param {String} id ID of input element to enable or disable
+ * @param {Boolean} enabled Enable input element?
+ */
 function setInputEnableState(id,enabled) {
   const input=document.getElementById(id);
   if (enabled) input.removeAttribute('disabled'); else input.setAttribute('disabled','disabled');
 }
 
+/**
+ * Updates the GUI after user input.
+ */
 function updateGUI() {
-  /* Warteraumgröße */
+  /* Waiting room size */
   const hasWaitingRoomSize=document.getElementById('hasWaitingRoomSize').checked;
   setInputEnableState('waitingRoomSize',hasWaitingRoomSize);
 
-  /* Wartezeittoleranz */
+  /* Waiting time tolerance */
   const hasImpatience=document.getElementById('hasImpatience').checked;
   setInputEnableState('waitingTimeToleranceDistribution',hasImpatience);
   setInputEnableState('waitingTimeToleranceDistributionMean',hasImpatience);
   setInputEnableState('waitingTimeToleranceDistributionSD',hasImpatience);
 }
 
+/**
+ * Clears the simulation output.
+ */
 function cleanOutput() {
   document.getElementById('output').innerHTML='';
 }
 
+/**
+ * Sets the simulation running status in GUI.
+ * @param {Boolean} running Is simulation currently running?
+ */
 function setSimulationRunning(running) {
   document.getElementById('buttonRunFull').style.display=(running?"none":"");
   document.getElementById('buttonRunLog').style.display=(running?"none":"");
@@ -185,11 +223,18 @@ function setSimulationRunning(running) {
   }
 }
 
+/**
+ * Terminates a running simulation.
+ */
 function terminateSimulation() {
   for (let i=0;i<worker.length;i++) worker[i].terminate();
   setSimulationRunning(false);
 }
 
+/**
+ * Updates the simulation progress base
+ * @param {Number} part Progress value between 0 and 1
+ */
 function showProgress(part) {
   const progressBar=document.getElementById('progressBar');
   const info=Math.round(100*part)+"%";
@@ -197,10 +242,18 @@ function showProgress(part) {
   progressBar.innerHTML=info;
 }
 
+/**
+ * Generates and returns a new simulation web worker object.
+ * @returns New simulation web worker
+ */
 function getWebWorker() {
   return new Worker('./js/Worker.js',{type: "module"});
 }
 
+/**
+ * Starts a simulation.<br>
+ * (Loads model from GUI and checks inputs.)
+ */
 function runFull() {
   const model=loadData(true);
   if (model==null) return;
@@ -237,6 +290,11 @@ function runFull() {
   },10);
 }
 
+/**
+ * Runs a model in single thread mode.
+ * @param {Object} model Model to be simulated
+ * @returns Returns a 1-element array containing the simulation results for the single thread
+ */
 function runFullSingleCore(model) {
   worker[0].onmessage=function(e) {
     const result=e.data;
@@ -252,8 +310,14 @@ function runFullSingleCore(model) {
   return [model];
 }
 
+/**
+ * Runs a model in multi thread mode.
+ * @param {Object} model Model to be simulated
+ * @param {Number} threadCount Number of threads to be used (integer value &ge;1)
+ * @returns Array containing the results of the individual threads
+ */
 function runFullMultiCore(model,threadCount) {
-  /* Teilmodelle erstellen */
+  /* Create partial models */
   const workerModel=[];
   const original=JSON.stringify(model);
   let arrivalDone=0;
@@ -265,12 +329,12 @@ function runFullMultiCore(model,threadCount) {
   }
   workerModel[threadCount-1].arrivalCount+=(model.arrivalCount-arrivalDone);
 
-  /* Fortschrittserfassung initialisieren */
+  /* Initialize progress recording */
   multiCoreArrivalsDone=[];
   for (let i=0;i<threadCount;i++) multiCoreArrivalsDone.push(0);
   multiCorePartialResults=[];
 
-  /* Callbacks für Worker */
+  /* Callbacks for workers */
   for (let i=0;i<threadCount;i++) worker[i].onmessage=function(e) {
     const result=e.data;
 	const index=result.index;
@@ -293,6 +357,11 @@ function runFullMultiCore(model,threadCount) {
   return workerModel;
 }
 
+/**
+ * Collects the simulation results from the individual simulation threads and builds the combined statistic results text.
+ * @param {Array} model Results of the individual simulation threads
+ * @returns Statistic results of the simulation as a string
+ */
 function buildMultiCoreStatisticText(model) {
   let arrivals=0;
   let events=0;
@@ -300,15 +369,22 @@ function buildMultiCoreStatisticText(model) {
   const statistics=new callcenter.Statistics();
 
   for (let i=0;i<multiCorePartialResults.length;i++) {
-	arrivals+=multiCorePartialResults[i].arrivals;
-	events+=multiCorePartialResults[i].events;
-	time=Math.max(time,multiCorePartialResults[i].time);
-	statistics.addPartial(multiCorePartialResults[i].statistics);
+	  arrivals+=multiCorePartialResults[i].arrivals;
+	  events+=multiCorePartialResults[i].events;
+	  time=Math.max(time,multiCorePartialResults[i].time);
+	  statistics.addPartial(multiCorePartialResults[i].statistics);
   }
 
   return buildStatisticText(statistics.makePlain(),arrivals,events,time,multiCorePartialResults.length,model);
 }
 
+/**
+ * Generates texts results for one static indicator.
+ * @param {*} name Text description of the indicator (e.g. "Waiting times")
+ * @param {*} id Mathematical identifier of the indicator (e.g. "W" for waiting times)
+ * @param {*} indicator Statistic indicator object for getting the data
+ * @returns Text results for the indicator
+ */
 function buildStatisticTextTimes(name,id,indicator) {
   let info="";
   info+="<p>";
@@ -320,10 +396,20 @@ function buildStatisticTextTimes(name,id,indicator) {
   return info;
 }
 
+/**
+ * Generates and returns the statistic results as text.
+ * @param {Object} statistics Object containing the statistic indicators as properties
+ * @param {Number} arrivals Number of simulated arrivals
+ * @param {Number} events Number of simulated events
+ * @param {Number} time Simulation run time (wall clock) in seconds
+ * @param {Number} threads Number of used parallel threads
+ * @param {Object} model Simulated model
+ * @returns Statistic results as text
+ */
 function buildStatisticText(statistics,arrivals,events,time,threads,model) {
   let info="";
 
-  /* Anzahl an Kunden (im System / in der Warteschlange) */
+  /* Number of customers (in system / in queue) */
 
   info+="<h5>"+language.statistics.queue+"</h5>";
   info+="<p>";
@@ -348,7 +434,7 @@ function buildStatisticText(statistics,arrivals,events,time,threads,model) {
   }
   info+="</p>";
 
-  /* Zeitdauern */
+  /* Times */
 
   info+="<h5>"+language.statistics.times+"</h5>";
   info+=buildStatisticTextTimes(language.statistics.interArrivalTimes,"I",statistics["Inter-arrival"]);
@@ -367,7 +453,7 @@ function buildStatisticText(statistics,arrivals,events,time,threads,model) {
   info+=buildStatisticTextTimes(language.statistics.residenceTimes,"V",statistics.V);
   info+="</p>";
 
-  /* Auslastung */
+  /* Utilization */
 
   info+="<h5>"+language.statistics.operators+"</h5>";
   info+="<p>";
@@ -375,7 +461,7 @@ function buildStatisticText(statistics,arrivals,events,time,threads,model) {
   info+=language.statistics.workload+" <tt>&rho;="+statcore.formatShorter(100*statistics["Agents busy"].mean/model.agents)+"%</tt>";
   info+="</p>";
 
-  /* Simulationssystem */
+  /* Simulation system */
 
   info+="<h5>"+language.statistics.simulationSystem+"</h5>";
   info+="<p>";
@@ -392,8 +478,14 @@ function buildStatisticText(statistics,arrivals,events,time,threads,model) {
   return info;
 }
 
+/**
+ * Generates and returns the Erlang C comparison results to a simulation as text.
+ * @param {Object} statistics Object containing the statistic indicators as properties
+ * @param {Object} model Simulated model
+ * @returns Erlang C results as text
+ */
 function buildErlangText(model,statistics) {
-  /* Ankünfte */
+  /* Arrivals */
   const arrivalDistribution=splitDistribution(model.interArrivalTimesDistribution);
   const lambda=1.0/arrivalDistribution[1];
   const scvI=Math.pow(arrivalDistribution[2],2)/Math.pow(arrivalDistribution[1],2);
@@ -411,7 +503,7 @@ function buildErlangText(model,statistics) {
     K=Math.min(10000,model.waitingRoomSize);
   }
 
-  /* Bedienprozess */
+  /* Service process */
   const c=model.agents;
   const serviceDistribution=splitDistribution(model.serviceTimesDistribution);
   const mu=1.0/serviceDistribution[1];
@@ -436,7 +528,7 @@ function buildErlangText(model,statistics) {
     const lambdaReal=lambda*model.batchArrival;
     const muReal=mu*model.batchService;
     if (hasImpatience) {
-      /* Erweiterte Erlang-C-Formel */
+      /* Extended Erlang C formula */
       formula=language.statistics.compareFormulaExtErlangC;
       ENQ=ErwErlangC_ENQ(lambdaReal,muReal,nu,c,K);
       EN=ErwErlangC_EN(lambdaReal,muReal,nu,c,K);
@@ -492,6 +584,10 @@ function buildErlangText(model,statistics) {
   return info;
 }
 
+/**
+ * Starts a (short) simulation in logging mode.
+ * (Loads model from GUI and checks inputs.)
+ */
 function runLog() {
   const model=loadData(false);
   if (model==null) return;
@@ -509,10 +605,20 @@ function runLog() {
   setSimulationRunning(false);
 }
 
+/**
+ * Returns the selected option of a HTML input element
+ * @param {String} id HTML ID
+ * @returns Selected option
+ */
 function getOption(id) {
   return document.getElementById(id).value;
 }
 
+/**
+ * Parses a string to a floating point number
+ * @param {string} str String to be parsed to a floating point number (decimal separator has to be ".")
+ * @returns Floating point number or NaN, if the string could not be parsed to a floating point number
+ */
 function parseFloatStrict(value) {
     if(/^(\-|\+)?([0-9]+(\.[0-9]+)?|Infinity)$/
       .test(value))
@@ -520,6 +626,11 @@ function parseFloatStrict(value) {
   return NaN;
 }
 
+/**
+ * Converts a number in a html input element to a floating point number.
+  * @param {String} id Value of the ID attribute of the input element
+ * @returns Floating point number or null if the string in the input field could not be interpreted as a number
+ */
 function getFloat(id) {
   let s=document.getElementById(id).value;
   if (typeof(s.replaceAll)=='function') s=s.replaceAll(",",".");
@@ -528,22 +639,44 @@ function getFloat(id) {
   return num;
 }
 
+/**
+ * Parses a string to an integer number
+ * @param {string} str String to be parsed to an integer number
+ * @returns Integer number or NaN, if the string could not be parsed to an integer number
+ */
 function parseIntStrict(value) {
   if(/^(\-|\+)?([0-9]+|Infinity)$/.test(value))
     return Number(value);
   return NaN;
 }
 
+/**
+ * Converts a number in a html input element to an integer number.
+ * @param {String} id Value of the ID attribute of the input element
+ * @returns Integer number or null if the string in the input field could not be interpreted as an integer number
+ */
 function getInt(id) {
   const num=parseIntStrict(document.getElementById(id).value);
   if (isNaN(num)) return null;
   return num;
 }
 
+/**
+ * Returns the state of a HTML checkbox.
+ * @param {String} id HTML ID
+ * @returns Returns true if the checkbox is checked
+ */
 function getChecked(id) {
   return document.getElementById(id).checked;
 }
 
+/**
+ * Build a string-based distribution description.
+ * @param {Number} selectNr Distribution type (value from 0 to 3)
+ * @param {Number} mean Mean value
+ * @param {Number} sd Standard deviation
+ * @returns Distribution description as a string
+ */
 function buildDistribution(selectNr, mean, sd) {
   switch (parseInt(selectNr)) {
     case 0: return "const("+mean+")";
@@ -554,6 +687,11 @@ function buildDistribution(selectNr, mean, sd) {
   }
 }
 
+/**
+ * Splits a string-based distribution description into an array containing the information on the distribution.
+ * @param {String} distribution String-based distribution description
+ * @returns 3-element array containing the distribution information
+ */
 function splitDistribution(distribution) {
   const index1=distribution.indexOf("(");
   const index2=distribution.indexOf(")");
@@ -578,6 +716,12 @@ function splitDistribution(distribution) {
   return result;
 }
 
+/**
+ * Shows an error information popup at an input element
+ * @param {String} id HTML ID of the input element containing invalid data
+ * @param {String} title Title of the error message
+ * @param {String} content Content of the error message
+ */
 function showError(id,title,content) {
   const popover = new bootstrap.Popover(document.getElementById(id),{title: title, content: content, trigger: "manual", placement: "bottom"});
   popover.show();
@@ -585,10 +729,15 @@ function showError(id,title,content) {
   window.scrollTo(0,document.getElementById(id).getBoundingClientRect().top+window.scrollY-100);
 }
 
+/**
+ * Load the model information from the GUI.
+ * @param {Boolean} fullSimulation Full simulation with warm-up (true) or only a logging-run without warm-up phase (false)?
+ * @returns Returns a simulation model if successful. In case of an error null is returned.
+ */
 function loadData(fullSimulation) {
   const model=new callcenter.Model();
 
-  /* Ankünfte */
+  /* Arrivals */
 
   const interArrivalTimesDistribution=getOption('interArrivalTimesDistribution');
   const interArrivalTimesDistributionMean=getFloat('interArrivalTimesDistributionMean');
@@ -611,7 +760,7 @@ function loadData(fullSimulation) {
   model.interArrivalTimesDistribution=buildDistribution(interArrivalTimesDistribution,interArrivalTimesDistributionMean,interArrivalTimesDistributionSD);
   model.batchArrival=batchArrival;
 
-  /* Warteraum */
+  /* Waiting room */
 
   const hasWaitingRoomSize=getChecked('hasWaitingRoomSize');
   const waitingRoomSize=getInt('waitingRoomSize');
@@ -668,7 +817,7 @@ function loadData(fullSimulation) {
   model.retryProbability=retryProbability;
   model.retryDistribution=buildDistribution(retryDistribution,retryDistributionMean,retryDistributionSD);
 
-  /* Bedienung */
+  /* Service process */
 
   const agents=getInt('agents');
   const queueingDiscipline=getInt('queueingDiscipline');

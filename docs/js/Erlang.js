@@ -19,10 +19,15 @@ export {PotenzFakultaet, MMcZustandsP0, MMcZustandsP, ErlangC_P1, ErlangC_P2, Er
 
 
 /*
- * Allgemeine Hilfsfunktionen
+ * General helper functions
  */
 
-/* Berechnet x^n/n! */
+/**
+ * Calculates x^n/n! and avoids numerical problems
+ * @param {Number} x x
+ * @param {Number} n n (has to be an integer)
+ * @returns x^n/n!
+ */
 function PotenzFakultaet(x,n) {
   if (n==0) return 1;
   let prod=1;
@@ -33,10 +38,15 @@ function PotenzFakultaet(x,n) {
 
 
 /*
- * M/M/c-System
+ * M/M/c system (Erlang C and extended Erlang C formula)
  */
 
-/* Berechnet p0 für ein M/M/c-System */
+/**
+ * Calculates P0 for a M/M/c system
+ * @param {Number} a Work load
+ * @param {Number} c Number of agents (has to be a positive integer)
+ * @returns Value P0
+ */
 function MMcZustandsP0(a,c) {
   let sum=0;
   for (let k=0;k<c;k++) sum+=PotenzFakultaet(a,k);
@@ -46,55 +56,104 @@ function MMcZustandsP0(a,c) {
   return 0
 }
 
-/* Berechnet pn für ein M/M/c-System */
+/**
+ * Calculates p_n for a M/M/c system
+ * @param {Number} a Work load
+ * @param {Number} c Number of agents (has to be a positive integer)
+ * @param {Number} n Value n for which p_n is to be calculated
+ * @returns Value p_n
+ */
 function MMcZustandsP(a,c,n) {
   if (n==0) return MMcZustandsP0(a,c);
   if (n<=c) return PotenzFakultaet(a,n)*MMcZustandsP0(a,c);
   return PotenzFakultaet(a,c)*Math.pow(a/c,n-c)*MMcZustandsP0(a,c);
 }
 
-/* Berechnet P1 für ein M/M/c-System */
+/**
+ * Calculates P1 for a M/M/c system
+ * @param {Number} a Work load
+ * @param {Number} c Number of agents (has to be a positive integer)
+ * @returns Value P1
+ */
 function ErlangC_P1(a,c) {
-    return PotenzFakultaet(a,c)*c/(c-a)*MMcZustandsP0(a,c);
+  return PotenzFakultaet(a,c)*c/(c-a)*MMcZustandsP0(a,c);
 }
 
-/* Berechnet P2 für die AC-Formel */
+/**
+ * Calculates P2 for a M/M/c/K+M system
+ * @param {Number} a Work load
+ * @param {Number} bS Service batch size (has to be an integer)
+ * @param {Number} c Number of agents (has to be a positive integer)
+ * @param {Number} rho Utilization
+ * @returns Value P2
+ */
 function ErlangC_P2(a,bS,c,rho) {
-    const factor=PotenzFakultaet(a/bS,c)/(1-rho);
-    let sum=0;
-    for (let k=0;k<c;k++) sum+=PotenzFakultaet(a/bS,k);
-    return factor/(factor+sum);
+  const factor=PotenzFakultaet(a/bS,c)/(1-rho);
+  let sum=0;
+  for (let k=0;k<c;k++) sum+=PotenzFakultaet(a/bS,k);
+  return factor/(factor+sum);
 }
 
-/* Berechnet P(W<=t) für ein M/M/c-System (also die Erlang-C-Formel) */
+/**
+ * Calculates P(W&gt;0) for a M/M/c system (this is the Erlang C formula)
+ * @param {Number} lambda Arrival rate
+ * @param {Number} mu Service rate (has to be &gt;0)
+ * @param {Number} c Number of agents (has to be a positive integer)
+ * @param {*} t Waiting time
+ * @returns Value P(W&gt;0)
+ */
 function ErlangC(lambda,mu,c,t) {
   const a=lambda/mu;
   if (a>=c) return 0;
   return 1-ErlangC_P1(a,c)*Math.exp(-(c-a)*mu*t);
 }
 
-/* Berechnet E[NQ] für ein M/M/c/-System */
+/**
+ * Calculates E[NQ], the average queue length, for a M/M/c system
+ * @param {Number} lambda Arrival rate
+ * @param {Number} mu Service rate (has to be &gt;0)
+ * @param {Number} c Number of agents (has to be a positive integer)
+ * @returns Value E[NQ]
+ */
 function ErlangC_ENQ(lambda,mu,c) {
   const a=lambda/mu;
   if (a>=c) return 0;
   return ErlangC_P1(a,c)*a/(c-a);
 }
 
-/* Berechnet E[N] für ein M/M/c/-System */
+/**
+ * Calculates E[N], the average number of customers in the system, for a M/M/c system
+ * @param {Number} lambda Arrival rate
+ * @param {Number} mu Service rate (has to be &gt;0)
+ * @param {Number} c Number of agents (has to be a positive integer)
+ * @returns Value E[N]
+ */
 function ErlangC_EN(lambda,mu,c) {
   const a=lambda/mu;
   if (a>=c) return 0;
   return ErlangC_P1(a,c)*a/(c-a)+a;
 }
 
-/* Berechnet E[W] für ein M/M/c/-System */
+/**
+ * Calculates E[W], the average waiting time, for a M/M/c system
+ * @param {Number} lambda Arrival rate
+ * @param {Number} mu Service rate (has to be &gt;0)
+ * @param {Number} c Number of agents (has to be a positive integer)
+ * @returns Value E[W]
+ */
 function ErlangC_EW(lambda,mu,c) {
   const a=lambda/mu;
   if (a>=c) return 0;
   return ErlangC_P1(a,c)/(c*mu-lambda);
 }
 
-/* Berechnet E[V] für ein M/M/c/-System */
+/**
+ * Calculates E[V], the average residence time, for a M/M/c system
+ * @param {Number} lambda Arrival rate
+ * @param {Number} mu Service rate (has to be &gt;0)
+ * @param {Number} c Number of agents (has to be a positive integer)
+ * @returns Value E[V]
+ */
 function ErlangC_EV(lambda,mu,c) {
   const a=lambda/mu;
   if (a>=c) return 0;
@@ -104,10 +163,15 @@ function ErlangC_EV(lambda,mu,c) {
 
 
 /*
- * M/M/c/c - System
+ * M/M/c/c system (Erlang B formula)
  */
 
-/* Berechnung von P1 für ein M/M/c/c-System (d.h. Berechnung der Erlang-B-Formel) */
+/**
+ * Calculates P1 for a M/M/c/c system (a queueing system with no waiting room; Erlang B formula)
+ * @param {Number} a Work load
+ * @param {Number} c Number of agents (has to be a positive integer)
+ * @returns Value P1
+ */
 function ErlangB(a,c) {
   let sum=0;
   for (let n=0;n<=c;n++) sum+=PotenzFakultaet(a,n);
@@ -117,10 +181,18 @@ function ErlangB(a,c) {
 
 
 /*
- * M/M/c/K + M - System
+ * M/M/c/K+M system
  */
 
-/* Berechnung von Cn für ein M/M/c/K+M-System */
+/**
+ * Calculates C_n for a M/M/c/K+M system
+ * @param {Number} lambda Arrival rate
+ * @param {Number} mu Service rate (has to be &gt;0)
+ * @param {Number} nu Cancelation rate
+ * @param {Number} c Number of agents (has to be a positive integer)
+ * @param {Number} n Value n for which C_n is to be calculated
+ * @returns Value C_n
+ */
 function MMcKMCn(lambda,mu,nu,c,n) {
   const a=lambda/mu;
   if (n<=c) return PotenzFakultaet(a,n);
@@ -129,7 +201,16 @@ function MMcKMCn(lambda,mu,nu,c,n) {
   return prod;
 }
 
-/* Berechnet pn für ein M/M/c/K+M-System */
+/**
+ * Calculates p_n for a M/M/c/K+M system
+ * @param {Number} lambda Arrival rate
+ * @param {Number} mu Service rate (has to be &gt;0)
+ * @param {Number} nu Cancelation rate
+ * @param {Number} c Number of agents (has to be a positive integer)
+ * @param {Number} K Maximum system size (has to be a positive integer larger or equal c)
+ * @param {Number} n Value n for which p_n is to be calculated
+ * @returns Value p_n
+ */
 function MMcKMZustandsP(lambda,mu,nu,c,K,n) {
   let p0=0;
   for (let i=0;i<=K;i++) p0+=MMcKMCn(lambda,mu,nu,c,i);
@@ -140,7 +221,15 @@ function MMcKMZustandsP(lambda,mu,nu,c,K,n) {
   return MMcKMCn(lambda,mu,nu,c,n)*p0;
 }
 
-/* Berechnet P(A) für ein M/M/c/K+M-System */
+/**
+ * Calculates the cancelation probability P(A) for a M/M/c/K+M system
+ * @param {Number} lambda Arrival rate
+ * @param {Number} mu Service rate (has to be &gt;0)
+ * @param {Number} nu Cancelation rate
+ * @param {Number} c Number of agents (has to be a positive integer)
+ * @param {Number} K Maximum system size (has to be a positive integer larger or equal c)
+  * @returns Cancelation probability P(A)
+ */
 function ErwErlangC_PA(lambda,mu,nu,c,K) {
   const p0=MMcKMZustandsP(lambda,mu,nu,c,K,0);
   let sum=0;
@@ -148,7 +237,11 @@ function ErwErlangC_PA(lambda,mu,nu,c,K) {
   return sum;
 }
 
-/* Log-Gamma-Funktion  */
+/**
+ * Calculates the value of the log-gamma function
+ * @param {Number} x Parameter
+ * @returns Value of the log-gamma function
+ */
 function gammaln(x) {
   let j = 0;
   const cof = [
@@ -164,7 +257,12 @@ function gammaln(x) {
   return Math.log(2.5066282746310005 * ser / xx) - tmp;
 };
 
-/* Untere regularisierte unvollständige Gamma-Funktion P(a,x) */
+/**
+ * Calculates the value of the regularized incomplete gamma function P(a,x)
+ * @param {Number} a Parameter a of P(a,x)
+ * @param {Number} x Parameter x of P(a,x)
+ * @returns Value of the regularized incomplete gamma function P(a,x)
+ */
 function lowRegGamma(a,x) {
   const aln = gammaln(a);
   let ap = a;
@@ -199,7 +297,16 @@ function lowRegGamma(a,x) {
   return (1 - h * Math.exp(-x + a * Math.log(x) - (aln)));
 };
 
-/* Berechnung von P(W<=t) für ein M/M/c/K+M-System (also die erweiterte Erlang-C-Formel) */
+/**
+ * Calculates P(W&gt;0) for a M/M/c/K+M system (this is the extended Erlang C formula)
+ * @param {Number} lambda Arrival rate
+ * @param {Number} mu Service rate (has to be &gt;0)
+ * @param {Number} nu Cancelation rate
+ * @param {Number} c Number of agents (has to be a positive integer)
+ * @param {Number} K Maximum system size (has to be a positive integer larger or equal c)
+ * @param {*} t Waiting time
+ * @returns Value P(W&gt;0)
+ */
 function ErwErlangC(lambda,mu,nu,c,K,t) {
   const p0=MMcKMZustandsP(lambda,mu,nu,c,K,0);
 
@@ -216,7 +323,15 @@ function ErwErlangC(lambda,mu,nu,c,K,t) {
   return p;
 }
 
-/* Berechnet E[NQ] für ein M/M/c/K+M-System */
+/**
+ * Calculates E[NQ], the average queue length, for a M/M/c/K+M system
+ * @param {Number} lambda Arrival rate
+ * @param {Number} mu Service rate (has to be &gt;0)
+ * @param {Number} nu Cancelation rate
+ * @param {Number} c Number of agents (has to be a positive integer)
+ * @param {Number} K Maximum system size (has to be a positive integer larger or equal c)
+ * @returns Value E[NQ]
+ */
 function ErwErlangC_ENQ(lambda,mu,nu,c,K) {
     const p0=MMcKMZustandsP(lambda,mu,nu,c,K,0);
     let sum=0;
@@ -224,7 +339,15 @@ function ErwErlangC_ENQ(lambda,mu,nu,c,K) {
     return sum;
 }
 
-/* Berechnet E[N] für ein M/M/c/K+M-System */
+/**
+ * Calculates E[N], the average number of customers in the system, for a M/M/c/K+M system
+ * @param {Number} lambda Arrival rate
+ * @param {Number} mu Service rate (has to be &gt;0)
+ * @param {Number} nu Cancelation rate
+ * @param {Number} c Number of agents (has to be a positive integer)
+ * @param {Number} K Maximum system size (has to be a positive integer larger or equal c)
+ * @returns Value E[N]
+ */
 function ErwErlangC_EN(lambda,mu,nu,c,K) {
   const p0=MMcKMZustandsP(lambda,mu,nu,c,K,0);
   let sum=0;
@@ -232,12 +355,28 @@ function ErwErlangC_EN(lambda,mu,nu,c,K) {
   return sum;
 }
 
-/* Berechnet E[W] für ein M/M/c/K+M-System */
+/**
+ * Calculates E[W], the average waiting time, for a M/M/c/K+M system
+ * @param {Number} lambda Arrival rate
+ * @param {Number} mu Service rate (has to be &gt;0)
+ * @param {Number} nu Cancelation rate
+ * @param {Number} c Number of agents (has to be a positive integer)
+ * @param {Number} K Maximum system size (has to be a positive integer larger or equal c)
+ * @returns Value E[W]
+ */
 function ErwErlangC_EW(lambda,mu,nu,c,K) {
   return ErwErlangC_ENQ(lambda,mu,nu,c,K)/lambda;
 }
 
-/* Berechnet E[V] für ein M/M/c/K+M-System */
+/**
+ * Calculates E[V], the average residence time, for a M/M/c/K+M system
+ * @param {Number} lambda Arrival rate
+ * @param {Number} mu Service rate (has to be &gt;0)
+ * @param {Number} nu Cancelation rate
+ * @param {Number} c Number of agents (has to be a positive integer)
+ * @param {Number} K Maximum system size (has to be a positive integer larger or equal c)
+ * @returns Value E[V]
+ */
 function  ErwErlangC_EV(lambda,mu,nu,c,K) {
   return ErwErlangC_EN(lambda,mu,nu,c,K)/lambda;
 }
