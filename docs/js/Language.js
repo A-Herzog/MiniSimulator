@@ -153,6 +153,7 @@ lang.statistics.compareReasonsServiceBatch="Die Kunden werden in Gruppen bedient
 lang.statistics.compareReasonsRetry="Es existieren Wiederholungen.";
 lang.statistics.compareReasonsForwarding="Es existieren Weiterleitungen.";
 lang.statistics.compareReasonsPostProcessing="Es existieren Nachbearbeitungszeiten.";
+lang.statistics.queueCalcInfo="Weitere analytische Berechnungen sind in der <a href='https://a-herzog.github.io/QueueCalc/' target='_blank'>Warteschlangenrechner-Wepapp</a> möglich.";
 
 lang.model={};
 lang.model.waitingRoomSize='Größe des Warteraumes';
@@ -360,6 +361,7 @@ lang.statistics.compareReasonsServiceBatch="Clients are served in groups.";
 lang.statistics.compareReasonsRetry="Retrys exist.";
 lang.statistics.compareReasonsForwarding="Forwarding exists.";
 lang.statistics.compareReasonsPostProcessing="Post-processing times exist.";
+lang.statistics.queueCalcInfo="More analytical calculations are available in the <a href='https://a-herzog.github.io/QueueCalc/' target='_blank'>Queue calculator web app</a>.";
 
 lang.model={};
 lang.model.waitingRoomSize='Size of the waiting room';

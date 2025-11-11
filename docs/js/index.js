@@ -581,6 +581,10 @@ function buildErlangText(model,statistics) {
     info+="</ul>";
   }
 
+  info+="<p>";
+  info+=language.statistics.queueCalcInfo;
+  info+="</p>";
+
   return info;
 }
 
