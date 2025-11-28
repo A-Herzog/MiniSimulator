@@ -2,6 +2,8 @@
 
 The G/G/c/K+G simulator is a web service for simulating queueing models with general inter-arrival and service times, with options for batch arrival, batch service, impatience, retry and forwarding.
 
+![Model](https://raw.githubusercontent.com/A-Herzog/MiniSimulator/refs/heads/master/docs/images/Model_en.svg)
+
 ## Usage
 
 To use simulator just go to
